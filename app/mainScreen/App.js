@@ -11,16 +11,18 @@ import { Platform, StyleSheet, Text, View, TextInput, ScrollView, TouchableOpaci
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import { Input, Card, Button, ListItem } from 'react-native-elements';
 import TouchableScale from 'react-native-touchable-scale';
-
-const instructions = Platform.select({
-	ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-	android:
-		'Double tap R on your keyboard to reload,\n' +
-		'Shake or press menu button for dev menu',
-});
+import TimerMixin from 'react-timer-mixin';
 
 class timeHandler {
-	constructor() { }
+	pastTime = 0
+	constructor() {
+		setInterval(() => {
+			this.pastTime = this.pastTime + 1
+		}, 1000);
+	}
+	getpastTime = (startTime) => {
+		return this.pastTime + " seconds"
+	}
 	getCurrentTime = () => {
 		date = new Date();
 		hour = date.getHours();
@@ -56,9 +58,19 @@ class ChatTextInput extends Component {
 	onPressSend = (text) => {
 		this.props.home.onPressSend(this.state.text);
 		this.textInput.clear();
+		this.state = {
+			text: ""
+		};
 	}
 
 	render() {
+		if (this.state.text != ""){
+			touchableProp = {
+				onPress: this.onPressSend
+			}
+		}else{
+			touchableProp = {}
+		}
 		return (
 			<Input
 				ref={input => { this.textInput = input }}
@@ -72,7 +84,7 @@ class ChatTextInput extends Component {
 				placeholderTextColor="rgba(245,245,245,.7)"
 				shake={true}
 				rightIcon={
-					<TouchableOpacity onPress={this.onPressSend}>
+					<TouchableOpacity {...touchableProp}>
 						<Icon
 							name='send'
 							type='material-community'
@@ -92,13 +104,13 @@ class ChatFlatListItem extends Component {
 		//console.warn(this.props.text);
 		if (this.props.dir == "right") {
 			dirProp = {
-				rightAvatar: { rounded: true, source: require('../app/images/avatar.png') },
-				rightTitle: this.props.text,
-				rightSubtitle: this.props.time
+				rightAvatar: { rounded: true, source: require('../images/avatar.png') },
+				title: this.props.text,
+				subtitle: this.props.time
 			}
-		}else{
+		} else {
 			dirProp = {
-				leftAvatar: { rounded: true, source: require('../app/images/avatar.png') },
+				leftAvatar: { rounded: true, source: require('../images/avatar.png') },
 				title: this.props.text,
 				subtitle: this.props.time
 			}
@@ -112,10 +124,8 @@ class ChatFlatListItem extends Component {
 				tension={70} // These props are passed to the parent component (here TouchableScale)
 				activeScale={0.9} //
 				backgroundColor={"rgb(23,33,43)"}
-				titleStyle={{ color: 'white', fontWeight: 'bold' }}
-				rightTitleStyle={{ color: 'white', fontWeight: 'bold' }}
-				rightSubtitleStyle={{ color: 'white'}}
-				subtitleStyle={{ color: 'white' }}
+				titleStyle={{ color: 'white', fontWeight: 'bold', direction: "rtl", textAlign: this.props.dir }}
+				subtitleStyle={{ color: 'white',  textAlign: this.props.dir }}
 				roundAvatar
 			/>
 
@@ -145,19 +155,33 @@ type Props = {};
 export default class App extends Component<Props> {
 	constructor(props) {
 		super(props);
+		mainTimeHandler = new timeHandler()
 		this.state = {
 			data:
 				[
-					{ text: "hello", dir: "left", time: new timeHandler().getCurrentTime() },
-				]
+					{ text: "Hello", dir: "left", time: mainTimeHandler.getCurrentTime() },
+				],
+			responseCounter: 1,
+			startTime: new Date()
 		};
 	}
 	onPressSend = (newText) => {
 		newData = this.state.data;
-		newData = [{ text: newText, dir: "right", time: new timeHandler().getCurrentTime() }].concat(newData)
+		newData = [{ text: newText, dir: "right", time: mainTimeHandler.getCurrentTime() }].concat(newData)
 		this.setState({
 			data: newData
 		})
+		this.sendResponse();
+	}
+	sendResponse = () => {
+		TimerMixin.setTimeout(() => {
+			newData = this.state.data;
+			newData = [{ text: "It's been " + mainTimeHandler.getpastTime(this.state.startTime) + " since we started talking!", dir: "left", time: mainTimeHandler.getCurrentTime() }].concat(newData)
+			this.setState({
+				data: newData,
+				responseCounter: this.state.responseCounter + 1
+			})
+		}, 2000);
 	}
 
 	render() {
@@ -227,6 +251,6 @@ const styles = StyleSheet.create({
 	chatItem: {
 		backgroundColor: "rgb(43,63,63)",
 		marginBottom: 10,
-		borderRadius:10,
+		borderRadius: 10,
 	}
 });
