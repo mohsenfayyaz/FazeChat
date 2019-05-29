@@ -9,7 +9,8 @@
 import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import { Input } from 'react-native-elements';
+import { Input, Card, Button, ListItem } from 'react-native-elements';
+import TouchableScale from 'react-native-touchable-scale';
 
 const instructions = Platform.select({
 	ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -18,11 +19,37 @@ const instructions = Platform.select({
 		'Shake or press menu button for dev menu',
 });
 
+class timeHandler {
+	constructor() { }
+	getCurrentTime = () => {
+		date = new Date();
+		hour = date.getHours();
+		if (hour <= 11) {
+			TimeType = 'AM';
+		}
+		else {
+			TimeType = 'PM';
+		}
+		if (hour > 12) {
+			hour = hour - 12;
+		}
+		if (hour == 0) {
+			hour = 12;
+		}
+		minutes = date.getMinutes();
+		if (minutes < 10) {
+			minutes = '0' + minutes.toString();
+		}
+		fullTime = hour.toString() + ':' + minutes.toString() + ' ' + TimeType.toString();
+		return fullTime
+	}
+}
+
 class ChatTextInput extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			text:""
+			text: ""
 		};
 	}
 
@@ -35,7 +62,7 @@ class ChatTextInput extends Component {
 		return (
 			<Input
 				ref={input => { this.textInput = input }}
-				onChangeText={(value) => this.setState({text: value})}
+				onChangeText={(value) => this.setState({ text: value })}
 				placeholder='Write a message...'
 				inputStyle={styles.ChatTextInput}
 				labelStyle={styles.ChatTextInputLabel}
@@ -62,8 +89,36 @@ class ChatTextInput extends Component {
 
 class ChatFlatListItem extends Component {
 	render() {
+		//console.warn(this.props.text);
+		if (this.props.dir == "right") {
+			dirProp = {
+				rightAvatar: { rounded: true, source: require('../app/images/avatar.png') },
+				rightTitle: this.props.text,
+				rightSubtitle: this.props.time
+			}
+		}else{
+			dirProp = {
+				leftAvatar: { rounded: true, source: require('../app/images/avatar.png') },
+				title: this.props.text,
+				subtitle: this.props.time
+			}
+		}
 		return (
-			<Text style={styles.chatSelfItem}>{this.props.text}</Text>
+			<ListItem
+				{...dirProp}
+				containerStyle={styles.chatItem}
+				Component={TouchableScale}
+				friction={80} //
+				tension={70} // These props are passed to the parent component (here TouchableScale)
+				activeScale={0.9} //
+				backgroundColor={"rgb(23,33,43)"}
+				titleStyle={{ color: 'white', fontWeight: 'bold' }}
+				rightTitleStyle={{ color: 'white', fontWeight: 'bold' }}
+				rightSubtitleStyle={{ color: 'white'}}
+				subtitleStyle={{ color: 'white' }}
+				roundAvatar
+			/>
+
 		);
 	}
 }
@@ -79,7 +134,7 @@ class ChatFlatList extends Component {
 				style={styles.chatFlatList}
 				inverted={true}
 				data={this.props.data}
-				renderItem={({ item }) => <ChatFlatList text={item.text}/>}
+				renderItem={({ item }) => <ChatFlatListItem text={item.text} time={item.time} dir={item.dir} />}
 				keyExtractor={(item, index) => index.toString()}
 			/>
 		);
@@ -93,13 +148,13 @@ export default class App extends Component<Props> {
 		this.state = {
 			data:
 				[
-					{ text: "hello" },
+					{ text: "hello", dir: "left", time: new timeHandler().getCurrentTime() },
 				]
 		};
 	}
 	onPressSend = (newText) => {
 		newData = this.state.data;
-		newData = [{ text: newText }].concat(newData)
+		newData = [{ text: newText, dir: "right", time: new timeHandler().getCurrentTime() }].concat(newData)
 		this.setState({
 			data: newData
 		})
@@ -117,6 +172,7 @@ export default class App extends Component<Props> {
 		);
 	}
 }
+
 
 const styles = StyleSheet.create({
 	container: {
@@ -164,9 +220,13 @@ const styles = StyleSheet.create({
 		paddingRight: 30,
 		paddingTop: 10,
 	},
-	chatSelfItem: {
+	chatItemTime: {
 		fontSize: 40,
 		color: "white",
-
+	},
+	chatItem: {
+		backgroundColor: "rgb(43,63,63)",
+		marginBottom: 10,
+		borderRadius:10,
 	}
 });
