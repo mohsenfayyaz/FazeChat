@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, FlatList } from 'react-native';
-import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import { Input, Card, Button, ListItem, Header, Image } from 'react-native-elements';
-import TouchableScale from 'react-native-touchable-scale';
+import { Platform, StyleSheet, View, Text } from 'react-native';
+import { Header, Image } from 'react-native-elements';
 import TimerMixin from 'react-timer-mixin';
+import Lightbox from 'react-native-lightbox';
 
 import { TimeHandler } from '../tools/TimeHandler'
-import {configColorPrimary, configColorPrimaryDark} from '../configStyle'
-import {ChatTextInput} from './ChatTextInput'
-import {ChatFlatList} from './chatList/ChatFlatList'
+import { configColorPrimary, configColorPrimaryDark } from '../configStyle'
+import { ChatTextInput } from './ChatTextInput'
+import { ChatFlatList } from './chatList/ChatFlatList'
 
 
 
@@ -42,20 +41,41 @@ export default class App extends Component<Props> {
 		}, 2000);
 	}
 
+
+
 	render() {
 		return (
 			<View style={styles.container}>
 				<Header
 					leftComponent={
-						< Image
-							source={require('../images/avatar.png')}
-							style={{ width: 40, height: 40 }}
-						/>
+						<Lightbox underlayColor={configColorPrimaryDark}
+							style={{ justifyContent: "center" }}
+							renderContent={() => (
+								< Image
+									resizeMode="contain"
+									source={require('../images/avatar.png')}
+									style={{ width: "100%" }}
+								/>
+							)}
+						>
+							< Image
+								resizeMode="contain"
+								source={require('../images/avatar.png')}
+								style={{ width: 50, height: 50 }}
+							/>
+						</Lightbox>
 					}
-					centerComponent={{ text: 'Talking Bot', style: { color: '#fff' } }}
+					centerComponent={
+						<View style={{width: "100%", justifyContent: "center"}}>
+							<Text style={{ color: '#fff', fontWeight: "bold" }}> Talking Bot </Text>
+							<Text style={{ color: 'rgba(255,255,255,0.7)' }}> Online </Text>
+						</View>
+					}
 					containerStyle={{
 						backgroundColor: configColorPrimary,
 						justifyContent: 'space-around',
+						paddingTop: 0,
+						paddingLeft: 30,
 					}}
 				/>
 				<ChatFlatList data={this.state.data} />
@@ -83,7 +103,11 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		position: 'relative',
-		bottom: 10,
+		paddingLeft: 10,
+		paddingRight: 10,
 		backgroundColor: configColorPrimary,
+	},
+	contain: {
+		flex: 1,
 	},
 });

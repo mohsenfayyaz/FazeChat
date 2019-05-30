@@ -40,7 +40,7 @@ export class ChatTextInput extends Component {
 				borderBottomWidth={0}
 				borderColor='red'
 				placeholderTextColor="rgba(245,245,245,.7)"
-				shake={true}
+				shake={false}
 				rightIcon={
 					<TouchableOpacity {...touchableOnPressProp}>
 						<Icon
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
 		backgroundColor: configColorPrimary,
 		color: "rgb(245,245,245)",
 		padding: 0,
+		
 
 	},
 	ChatTextInputLabel: {
