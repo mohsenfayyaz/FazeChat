@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, View, Text } from 'react-native';
-import { Header, Image } from 'react-native-elements';
+import { StyleSheet, View} from 'react-native';
 import TimerMixin from 'react-timer-mixin';
-import Lightbox from 'react-native-lightbox';
 
 import { TimeHandler } from '../tools/TimeHandler'
-import { configColorPrimary, configColorPrimaryDark } from '../configStyle'
+import { configColorPrimary } from '../configStyle'
 import { ChatTextInput } from './ChatTextInput'
 import { ChatFlatList } from './chatList/ChatFlatList'
-
+import { ChatHeader } from './ChatHeader'
 
 
 type Props = {};
@@ -46,38 +44,7 @@ export default class App extends Component<Props> {
 	render() {
 		return (
 			<View style={styles.container}>
-				<Header
-					leftComponent={
-						<Lightbox underlayColor={configColorPrimaryDark}
-							style={{ justifyContent: "center" }}
-							renderContent={() => (
-								< Image
-									resizeMode="contain"
-									source={require('../images/avatar.png')}
-									style={{ width: "100%" }}
-								/>
-							)}
-						>
-							< Image
-								resizeMode="contain"
-								source={require('../images/avatar.png')}
-								style={{ width: 50, height: 50 }}
-							/>
-						</Lightbox>
-					}
-					centerComponent={
-						<View style={{width: "100%", justifyContent: "center"}}>
-							<Text style={{ color: '#fff', fontWeight: "bold" }}> Talking Bot </Text>
-							<Text style={{ color: 'rgba(255,255,255,0.7)' }}> Online </Text>
-						</View>
-					}
-					containerStyle={{
-						backgroundColor: configColorPrimary,
-						justifyContent: 'space-around',
-						paddingTop: 0,
-						paddingLeft: 30,
-					}}
-				/>
+				<ChatHeader/>
 				<ChatFlatList data={this.state.data} />
 				<View style={styles.bottomView}>
 					<ChatTextInput home={this} />
